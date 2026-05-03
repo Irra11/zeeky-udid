@@ -186,7 +186,9 @@
 
         .step { display: flex; gap: 12px; margin-bottom: 15px; }
         .step-num { 
-            background: var(--accent); width: 24px; height: 24px; 
+           background: #3498db;
+width: 24px;
+height: 24px;
             border-radius: 7px; display: flex; align-items: center; justify-content: center;
             font-size: 12px; font-weight: bold; flex-shrink: 0;
         }
@@ -195,7 +197,7 @@
         .btn-main {
             display: flex; align-items: center; justify-content: center; gap: 10px;
             width: 100%; padding: 18px;
-            background: linear-gradient(135deg, var(--accent), #9c6dfa);
+           background: linear-gradient(135deg, #3498db, #0075fc);
             color: #fff; border-radius: 18px;
             font-size: 16px; font-weight: 700; text-decoration: none;
             box-shadow: 0 8px 25px rgba(124,109,250,0.4);
@@ -236,6 +238,20 @@
         }
         .blob1 { width: 300px; height: 300px; background: var(--accent); top: -50px; left: -100px; }
         .blob2 { width: 250px; height: 250px; background: var(--accent2); bottom: 50px; right: -50px; }
+        h1 span {
+  background: none;
+  -webkit-text-fill-color: #3498db; /* blue */
+  color: #3498db;
+}
+
+.safari-warn {
+    animation: fadeIn 0.4s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
     </style>
 </head>
 <body>
@@ -244,7 +260,7 @@
     <header class="main-header">
         <div class="header-container">
             <a href="#" class="header-logo-section">
-                <img src="https://i.pinimg.com/736x/f2/5a/b1/f25ab1644389f727369bf428ac48687d.jpg" class="header-logo-img" alt="Logo">
+                <img src="https://i.postimg.cc/pL8MBZWt/cc437e7c-05fb-4bf7-a313-00028d14b346.jpg" class="header-logo-img" alt="Logo">
                 <span class="header-name">ZEEKY UDID</span>
             </a>
             
@@ -253,8 +269,8 @@
                     <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
                 </button>
                 <div class="dropdown-menu" id="myDropdown">
-                    <button class="dropdown-item" onclick="copyURL()">ចម្លង Link</button>
-                    <a href="https://t.me/irra_11" target="_blank" class="dropdown-item">Contact Admin</a>
+                    <button class="dropdown-item" onclick="copyURL()">របៀប​ COPY UDID</button>
+                    <a href="https://t.me/irra_11" target="_blank" class="dropdown-item">CONTACT ADMIN</a>
                 </div>
             </div>
         </div>
@@ -271,7 +287,7 @@
                 <div class="logo-wrap">
                     <img src="https://i.pinimg.com/originals/be/cb/ca/becbca09cc81c9ecd1ce133c836b3f25.gif" alt="Logo">
                 </div>
-                <h1>ស្វែងរក <span>UDID</span></h1>
+                <h1>ស្វែងរក <span style="color:#3498db;">UDID</span></h1>
                 <p class="subtitle">ស្វែងរកលេខ UDID ជំហានងាយស្រួលសម្រាប់ iOS</p>
             </div>
 
@@ -281,11 +297,13 @@
                 <!-- <img src="https://i.pinimg.com/736x/ef/75/60/ef756038f74cf1d41860ff542f9e129b.jpg" class="banner-img" alt="Banner 2"> -->
             </div>
 
-            <div class="safari-warn">
-                <span>⚠️</span>
-                <span>បញ្ជាក់​ត្រូវប្រើ Safari Browser ប៉ុណ្ណោះ !</span>
-            </div>
-
+           <div class="safari-warn">
+    <div class="warn-icon"></div>
+    <div class="warn-text">
+        
+        សូមប្រើ Safari Browser ប៉ុណ្ណោះ ដើម្បីដំណើរការ
+    </div>
+</div>
             <div class="card">
                 <div class="step">
                     <div class="step-num">១</div>
@@ -299,12 +317,7 @@
             </div>
         </div>
 
-        <!-- RESULT VIEW -->
-        <div id="result-view">
-            <div class="hero">
-                <div style="font-size: 40px; margin-bottom: 10px;">✅</div>
-                <h2>រកឃើញ <span>UDID!</span></h2>
-            </div>
+       <div id="result-view"> <div class="hero"> <div style="font-size: 40px; margin-bottom: 10px;">✅</div> <h2>រកឃើញ <span>UDID!</span></h2> </div>
             <div class="card">
                 <div class="udid-display" id="udidDisplay">...</div>
                 <button class="btn-copy" id="copyBtn" onclick="copyUDID()">ចម្លងយក UDID</button>
