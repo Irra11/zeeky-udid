@@ -1,31 +1,376 @@
-export const config = {
-  api: {
-    bodyParser: false,
-  },
-};
+<!DOCTYPE html>
+<html lang="km">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>UDID Finder – Irra </title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;600;700;800&family=Noto+Sans+Khmer:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #0a0a0f;
+            --surface: rgba(255,255,255,0.04);
+            --surface2: rgba(255,255,255,0.07);
+            --border: rgba(255,255,255,0.1);
+            --accent: #7c6dfa;
+            --accent2: #fa6d6d;
+            --green: #00e5a0;
+            --text: #f0f0f5;
+            --muted: rgba(240,240,245,0.45);
+            --safe-top: env(safe-area-inset-top, 0px);
+            --safe-bottom: env(safe-area-inset-bottom, 0px);
+            --header-height: 60px;
+        }
 
-export default function handler(req, res) {
-  let rawData = "";
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
-  req.on("data", (chunk) => {
-    rawData += chunk.toString("latin1");
-  });
+        html, body {
+            height: 100%;
+            background: var(--bg);
+            color: var(--text);
+            font-family: 'Sora', 'Noto Sans Khmer', sans-serif;
+            overscroll-behavior: none;
+        }
 
-  req.on("end", () => {
-    const match = rawData.match(/<key>UDID<\/key>\s*<string>(.*?)<\/string>/);
+        body {
+            min-height: 100svh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            padding: calc(var(--header-height) + var(--safe-top) + 20px) 20px calc(var(--safe-bottom) + 32px);
+            position: relative;
+            overflow-x: hidden;
+        }
 
-    if (match) {
-      const udid = match[1];
+        /* --- STICKY HEADER --- */
+        .main-header {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            height: calc(var(--header-height) + var(--safe-top));
+            background: rgba(10, 10, 15, 0.7);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            padding-top: var(--safe-top);
+        }
 
-      // 🔴 CHANGE THIS to your real Vercel domain
-      const FRONTEND_URL = "https://irra-udid.vercel.app/";
+        .header-container {
+            width: 100%;
+            max-width: 420px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
 
-      res.writeHead(301, {
-        Location: `${FRONTEND_URL}?udid=${udid}`,
-      });
-      res.end();
-    } else {
-      res.status(400).send("UDID Extraction Failed");
-    }
-  });
-}
+        .header-logo-section {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+        }
+
+        .header-logo-img {
+            width: 34px; height: 34px;
+            border-radius: 10px;
+            object-fit: cover;
+            border: 1px solid var(--border);
+        }
+
+        .header-name {
+            font-size: 17px;
+            font-weight: 700;
+            color: var(--text);
+            letter-spacing: -0.02em;
+        }
+
+        /* --- SYMBOL MENU --- */
+        .menu-toggle {
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            width: 40px; height: 40px;
+            border-radius: 12px;
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer; color: var(--text);
+            transition: all 0.2s;
+        }
+        .menu-toggle:active { transform: scale(0.9); }
+
+        .dropdown-menu {
+            position: absolute;
+            top: calc(var(--header-height) + 10px);
+            right: 20px;
+            width: 180px;
+            background: rgba(20, 20, 25, 0.95);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border);
+            border-radius: 18px;
+            padding: 8px;
+            display: none;
+            flex-direction: column;
+            gap: 4px;
+            z-index: 1001;
+            animation: menuIn 0.2s ease-out forwards;
+        }
+        @keyframes menuIn {
+            from { opacity: 0; transform: scale(0.9) translateY(-10px); }
+            to { opacity: 1; transform: scale(1) translateY(0); }
+        }
+        .dropdown-menu.active { display: flex; }
+        .dropdown-item {
+            display: flex; align-items: center; gap: 10px;
+            padding: 12px 14px; color: var(--text);
+            text-decoration: none; font-size: 13px; font-weight: 600;
+            border-radius: 12px; cursor: pointer; border: none; background: transparent;
+        }
+        .dropdown-item:active { background: var(--surface2); }
+
+        /* --- AUTO BANNER SLIDESHOW --- */
+        .banner-slider {
+            width: 100%;
+            height: 180px;
+            position: relative;
+            border-radius: 22px;
+            overflow: hidden;
+            margin-bottom: 25px;
+            border: 1px solid var(--border);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+        .banner-img {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            object-fit: cover;
+            opacity: 0;
+            transition: opacity 1s ease-in-out;
+            transform: scale(1.05);
+        }
+        .banner-img.active {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        /* --- CONTENT WRAPPER --- */
+        .wrapper { width: 100%; max-width: 420px; position: relative; z-index: 2; }
+
+        .hero { text-align: center; margin-bottom: 25px; }
+        .logo-wrap {
+            width: 80px; height: 80px;
+            border-radius: 20px;
+            background: linear-gradient(135deg, var(--accent), var(--accent2));
+            display: flex; align-items: center; justify-content: center;
+            margin: 0 auto 15px;
+            overflow: hidden;
+            box-shadow: 0 10px 25px rgba(124,109,250,0.3);
+        }
+        .logo-wrap img { width: 100%; height: 100%; object-fit: cover; }
+
+        h1 { font-size: 26px; font-weight: 800; line-height: 1.2; margin-bottom: 8px; }
+        h1 span { background: linear-gradient(90deg, var(--accent), var(--accent2)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .subtitle { font-size: 14px; color: var(--muted); }
+
+        .card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .step { display: flex; gap: 12px; margin-bottom: 15px; }
+        .step-num { 
+            background: var(--accent); width: 24px; height: 24px; 
+            border-radius: 7px; display: flex; align-items: center; justify-content: center;
+            font-size: 12px; font-weight: bold; flex-shrink: 0;
+        }
+        .step-text { font-size: 13.5px; color: rgba(255,255,255,0.8); }
+
+        .btn-main {
+            display: flex; align-items: center; justify-content: center; gap: 10px;
+            width: 100%; padding: 18px;
+            background: linear-gradient(135deg, var(--accent), #9c6dfa);
+            color: #fff; border-radius: 18px;
+            font-size: 16px; font-weight: 700; text-decoration: none;
+            box-shadow: 0 8px 25px rgba(124,109,250,0.4);
+            transition: transform 0.2s;
+        }
+        .btn-main:active { transform: scale(0.96); }
+
+        .safari-warn {
+            background: rgba(250, 109, 109, 0.1);
+            border: 1px solid rgba(250, 109, 109, 0.2);
+            padding: 12px; border-radius: 15px;
+            font-size: 12px; color: #fa9d9d; margin-bottom: 15px;
+            display: flex; gap: 10px; align-items: center;
+        }
+
+        /* Results */
+        #result-view { display: none; }
+        .udid-display {
+            background: rgba(0,229,160,0.1);
+            border: 1px solid rgba(0,229,160,0.3);
+            padding: 18px; border-radius: 18px;
+            font-family: 'Courier New', monospace; font-size: 15px;
+            word-break: break-all; text-align: center; margin: 15px 0;
+            color: var(--green); letter-spacing: 1px;
+        }
+        .btn-copy {
+            background: var(--green); color: #000;
+            width: 100%; padding: 18px; border-radius: 18px;
+            font-weight: 800; border: none; cursor: pointer;
+            transition: all 0.2s;
+        }
+        .btn-copy:active { transform: scale(0.96); }
+
+        /* Background Blobs */
+        .bg-blob {
+            position: fixed; border-radius: 50%; filter: blur(80px);
+            opacity: 0.12; pointer-events: none; z-index: 0;
+        }
+        .blob1 { width: 300px; height: 300px; background: var(--accent); top: -50px; left: -100px; }
+        .blob2 { width: 250px; height: 250px; background: var(--accent2); bottom: 50px; right: -50px; }
+    </style>
+</head>
+<body>
+
+    <!-- STICKY HEADER -->
+    <header class="main-header">
+        <div class="header-container">
+            <a href="#" class="header-logo-section">
+                <img src="https://i.pinimg.com/736x/f2/5a/b1/f25ab1644389f727369bf428ac48687d.jpg" class="header-logo-img" alt="Logo">
+                <span class="header-name">ZEEKY UDID</span>
+            </a>
+            
+            <div class="menu-wrapper">
+                <button class="menu-toggle" onclick="toggleMenu(event)">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+                </button>
+                <div class="dropdown-menu" id="myDropdown">
+                    <button class="dropdown-item" onclick="copyURL()">ចម្លង Link</button>
+                    <a href="https://t.me/irra_11" target="_blank" class="dropdown-item">Contact Admin</a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="bg-blob blob1"></div>
+    <div class="bg-blob blob2"></div>
+
+    <div class="wrapper">
+        
+        <!-- SETUP VIEW -->
+        <div id="setup-view">
+            <div class="hero">
+                <div class="logo-wrap">
+                    <img src="https://i.pinimg.com/originals/be/cb/ca/becbca09cc81c9ecd1ce133c836b3f25.gif" alt="Logo">
+                </div>
+                <h1>ស្វែងរក <span>UDID</span></h1>
+                <p class="subtitle">ស្វែងរកលេខ UDID ជំហានងាយស្រួលសម្រាប់ iOS</p>
+            </div>
+
+            <!-- AUTO SLIDING BANNERS (1 BY 1) -->
+            <div class="banner-slider">
+                <img src="https://i.pinimg.com/736x/b1/69/58/b169580dfb26bc6d0683019e5ab1e0a0.jpg" class="banner-img active" alt="Banner 1">
+                <!-- <img src="https://i.pinimg.com/736x/ef/75/60/ef756038f74cf1d41860ff542f9e129b.jpg" class="banner-img" alt="Banner 2"> -->
+            </div>
+
+            <div class="safari-warn">
+                <span>⚠️</span>
+                <span>បញ្ជាក់​ត្រូវប្រើ Safari Browser ប៉ុណ្ណោះ !</span>
+            </div>
+
+            <div class="card">
+                <div class="step">
+                    <div class="step-num">១</div>
+                    <div class="step-text">ចុចប៊ូតុង "ទាញយក Profile"</div>
+                </div>
+                <div class="step">
+                    <div class="step-num">២</div>
+                    <div class="step-text">Allow -> Settings -> Install Profile</div>
+                </div>
+                <a href="/api/get-profile" class="btn-main">ទាញយក Profile</a>
+            </div>
+        </div>
+
+        <!-- RESULT VIEW -->
+        <div id="result-view">
+            <div class="hero">
+                <div style="font-size: 40px; margin-bottom: 10px;">✅</div>
+                <h2>រកឃើញ <span>UDID!</span></h2>
+            </div>
+            <div class="card">
+                <div class="udid-display" id="udidDisplay">...</div>
+                <button class="btn-copy" id="copyBtn" onclick="copyUDID()">ចម្លងយក UDID</button>
+                <a href="https://t.me/irra_11" target="_blank" style="display:block; text-align:center; margin-top:15px; color:var(--muted); text-decoration:none; font-size:13px;">ផ្ញើទៅកាន់ Admin</a>
+            </div>
+        </div>
+
+        <div class="footer" style="text-align:center; font-size:10px; opacity:0.3; margin-top:20px;">ZEEKY UDID v2.1</div>
+    </div>
+
+    <script>
+        // Banner Slider Logic (Auto show 1 by 1)
+        let slideIndex = 0;
+        const slides = document.querySelectorAll('.banner-img');
+        
+        function autoSlide() {
+            slides[slideIndex].classList.remove('active');
+            slideIndex = (slideIndex + 1) % slides.length;
+            slides[slideIndex].classList.add('active');
+        }
+        setInterval(autoSlide, 3000); // Change image every 3 seconds
+
+        // Toggle Menu
+        function toggleMenu(event) {
+            event.stopPropagation();
+            document.getElementById("myDropdown").classList.toggle("active");
+        }
+
+        window.onclick = function(event) {
+            if (!event.target.closest('.menu-wrapper')) {
+                document.getElementById("myDropdown").classList.remove("active");
+            }
+        }
+
+        // Copy current page URL
+        function copyURL() {
+            navigator.clipboard.writeText(window.location.href).then(() => {
+                alert("Link Copied!");
+                document.getElementById("myDropdown").classList.remove("active");
+            });
+        }
+
+        // Check if UDID exists in URL
+        window.addEventListener('DOMContentLoaded', () => {
+            const udid = new URLSearchParams(window.location.search).get('udid');
+            if (udid) {
+                document.getElementById('setup-view').style.display = 'none';
+                document.getElementById('result-view').style.display = 'block';
+                document.getElementById('udidDisplay').textContent = udid;
+            }
+        });
+
+        // Copy UDID result
+        function copyUDID() {
+            const text = document.getElementById('udidDisplay').textContent;
+            navigator.clipboard.writeText(text).then(() => {
+                const btn = document.getElementById('copyBtn');
+                const originalText = btn.textContent;
+                btn.textContent = "✓ ចម្លងរួចរាល់";
+                btn.style.background = "#ffffff";
+                setTimeout(() => { 
+                    btn.textContent = originalText; 
+                    btn.style.background = "var(--green)";
+                }, 2000);
+            });
+        }
+    </script>
+</body>
+</html>
