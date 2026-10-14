@@ -18,7 +18,7 @@ export default function handler(req, res) {
         </array>
     </dict>
     <key>PayloadOrganization</key>
-    <string>ZEEKY UDID</string>
+    <string>IrraEsignBot</string>
     <key>PayloadDisplayName</key>
     <string>Get Device UDID</string>
     <key>PayloadVersion</key>
